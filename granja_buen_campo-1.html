@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Granja Buen Campo — César Cahuec</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,sans-serif;background:#f4f6f4;color:#1a1a1a;min-height:100vh;}
+.header{background:#0F6E56;padding:1rem 1.25rem;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:10;}
+.brand-icon{width:42px;height:42px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#0F6E56;flex-shrink:0;}
+.brand-name{font-size:17px;font-weight:600;color:#E1F5EE;}
+.brand-sub{font-size:12px;color:#9FE1CB;margin-top:1px;}
+.badge-active{margin-left:auto;background:#1D9E75;color:#E1F5EE;font-size:11px;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:1rem;}
+.stat-card{background:#fff;border-radius:12px;padding:.875rem;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.07);}
+.stat-label{font-size:11px;color:#666;margin-bottom:4px;}
+.stat-val{font-size:22px;font-weight:600;color:#0F6E56;}
+.tabs{display:flex;background:#fff;border-bottom:1px solid #e0e0e0;overflow-x:auto;position:sticky;top:72px;z-index:9;}
+.tab-btn{flex:1;background:none;border:none;padding:12px 8px;font-size:13px;color:#888;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;min-width:80px;}
+.tab-btn.active{color:#0F6E56;border-bottom:2px solid #0F6E56;font-weight:600;}
+.tab-content{display:none;padding:1rem;}
+.tab-content.active{display:block;}
+.section-title{font-size:14px;font-weight:600;margin-bottom:4px;color:#1a1a1a;}
+.section-sub{font-size:12px;color:#888;margin-bottom:12px;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:10px 0 14px;}
+.cal-day{border-radius:10px;border:1px solid #ddd;padding:8px 4px;text-align:center;cursor:pointer;background:#f9f9f9;}
+.cal-day.active{background:#0F6E56;border-color:#0F6E56;}
+.cal-day.active .cd-num,.cal-day.active .cd-lbl{color:#fff;}
+.cal-day.done{background:#d4edda;border-color:#a3d9b1;}
+.cal-day.done .cd-num,.cal-day.done .cd-lbl{color:#1a7a3c;}
+.cd-num{font-size:14px;font-weight:600;}
+.cd-lbl{font-size:9px;color:#888;margin-top:2px;}
+.detalle-card{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:10px;}
+.detalle-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.detalle-title{font-size:14px;font-weight:600;}
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.mini-card{background:#f4f6f4;border-radius:8px;padding:.75rem;text-align:center;}
+.mini-label{font-size:11px;color:#666;margin-bottom:2px;}
+.mini-val{font-size:18px;font-weight:600;color:#0F6E56;}
+.task-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.task-item:last-child{border-bottom:none;}
+.task-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
+.task-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.task-desc{font-size:12px;color:#666;line-height:1.5;}
+.badge{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-block;}
+.b-green{background:#d4edda;color:#1a7a3c;}
+.b-yellow{background:#fff3cd;color:#856404;}
+.b-blue{background:#d0e8ff;color:#0c447c;}
+.b-red{background:#fce8e8;color:#a32d2d;}
+.form-group{margin-bottom:10px;}
+.form-group label{font-size:12px;color:#666;display:block;margin-bottom:4px;}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;background:#fff;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.full{grid-column:1/-1;}
+.btn{background:#0F6E56;color:#fff;border:none;padding:11px 18px;border-radius:8px;font-size:14px;cursor:pointer;width:100%;margin-bottom:12px;font-weight:600;}
+.btn:active{background:#085041;}
+.btn-sm{background:#f0f0f0;color:#444;border:none;padding:5px 10px;border-radius:6px;font-size:12px;cursor:pointer;}
+.btn-sm:active{background:#ddd;}
+.btn-danger{background:#fce8e8;color:#a32d2d;}
+.msg{font-size:12px;color:#1a7a3c;margin-bottom:10px;padding:8px 12px;background:#d4edda;border-radius:8px;display:none;}
+.row-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:13px;}
+.row-item:last-child{border-bottom:none;}
+.empty{font-size:13px;color:#888;padding:1rem 0;text-align:center;}
+.card{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 1px 3px rgba(0,0,0,.07);margin-bottom:12px;}
+.total-bar{font-size:14px;font-weight:600;padding-top:10px;border-top:1px solid #eee;margin-top:4px;display:none;}
+.lote-ganancia{font-weight:600;}
+.ganancia-pos{color:#1a7a3c;}
+.ganancia-neg{color:#a32d2d;}
+.total-acum{font-size:14px;font-weight:600;padding-top:10px;border-top:1px solid #eee;margin-top:4px;}
+.avanzar-btn{background:#fff;color:#0F6E56;border:2px solid #0F6E56;padding:10px 18px;border-radius:8px;font-size:14px;cursor:pointer;width:100%;font-weight:600;margin-top:4px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="brand-icon">
+<svg width="28" height="28" viewBox="0 0 28 28" role="img" aria-label="Pollo Granja Buen Campo">
+  <!-- cuerpo -->
+  <ellipse cx="14" cy="18" rx="9" ry="7" fill="#EF9F27"/>
+  <!-- cabeza -->
+  <circle cx="14" cy="9" r="5" fill="#EF9F27"/>
+  <!-- cresta -->
+  <polygon points="14,4 12,1 14,2.5 16,1" fill="#E24B4A"/>
+  <!-- ojo -->
+  <circle cx="16" cy="8" r="1.5" fill="white"/>
+  <circle cx="16.5" cy="8" r="0.8" fill="#042C53"/>
+  <!-- pico -->
+  <polygon points="18,10 21,9.5 18,11" fill="#BA7517"/>
+  <!-- ala -->
+  <ellipse cx="19" cy="16" rx="5" ry="3" fill="#EF9F27" transform="rotate(-20 19 16)"/>
+  <!-- patas -->
+  <line x1="11" y1="25" x2="10" y2="28" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="14" y1="25" x2="14" y2="28" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="10" y1="28" x2="8" y2="28" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="14" y1="28" x2="12" y2="28" stroke="#BA7517" stroke-width="1.5" stroke-linecap="round"/>
+</svg>
+</div>
+  <div>
+    <div class="brand-name">Granja Buen Campo</div>
+    <div class="brand-sub">César Cahuec · Pollos frescos de calidad</div>
+  </div>
+  <div class="badge-active" id="estado-badge">Lote activo</div>
+  <button onclick="confirmarBorrar()" style="background:none;border:1px solid #9FE1CB;color:#E1F5EE;font-size:12px;padding:4px 10px;border-radius:20px;cursor:pointer;margin-left:6px;white-space:nowrap;">🗑 Borrar</button>
+</div>
+
+<div id="modal-borrar" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:1.5rem;margin:1rem;max-width:320px;width:100%;">
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px;">⚠️ ¿Borrar todo?</div>
+    <div style="font-size:13px;color:#666;margin-bottom:1.25rem;line-height:1.6;">Se borrarán todos los registros, gastos y lotes. Esta acción no se puede deshacer.</div>
+    <div style="display:flex;gap:10px;">
+      <button onclick="cancelarBorrar()" style="flex:1;padding:11px;border-radius:8px;border:1px solid #ddd;background:#f9f9f9;font-size:14px;cursor:pointer;font-weight:600;">Cancelar</button>
+      <button onclick="borrarTodo()" style="flex:1;padding:11px;border-radius:8px;border:none;background:#a32d2d;color:#fff;font-size:14px;cursor:pointer;font-weight:600;">Sí, borrar todo</button>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-card"><div class="stat-label">Pollos vivos</div><div class="stat-val" id="pollos-vivos">12</div></div>
+  <div class="stat-card"><div class="stat-label">Semana</div><div class="stat-val" id="semana-actual">1 / 7</div></div>
+  <div class="stat-card"><div class="stat-label">Gasto lote</div><div class="stat-val" id="gasto-total">Q 0</div></div>
+  <div class="stat-card"><div class="stat-label">Lotes cerrados</div><div class="stat-val" id="lotes-count">0</div></div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('calendario',this)">📅 Calendario</button>
+  <button class="tab-btn" onclick="showTab('registro',this)">📋 Registro</button>
+  <button class="tab-btn" onclick="showTab('gastos',this)">💰 Gastos</button>
+  <button class="tab-btn" onclick="showTab('lotes',this)">📊 Lotes</button>
+</div>
+
+<div id="tab-calendario" class="tab-content active">
+  <div class="section-title">Semanas del lote</div>
+  <div class="section-sub">Tocá una semana para ver las tareas y el alimento.</div>
+  <div class="cal-grid" id="cal-grid"></div>
+  <div id="cal-detalle"></div>
+  <button class="avanzar-btn" onclick="avanzarSemana()">Avanzar a siguiente semana →</button>
+</div>
+
+<div id="tab-registro" class="tab-content">
+  <div class="card">
+    <div class="section-title" style="margin-bottom:12px;">Registrar día de hoy</div>
+    <div class="grid2">
+      <div class="form-group"><label>Pollos muertos</label><input type="number" id="mort-input" min="0" value="0"/></div>
+      <div class="form-group"><label>Libras de alimento</label><input type="number" id="alim-input" min="0" step="0.5" placeholder="ej. 1.5"/></div>
+      <div class="form-group full"><label>Observaciones</label><input type="text" id="obs-input" placeholder="ej. Todos activos y comiendo bien"/></div>
+    </div>
+    <button class="btn" onclick="registrarDia()">Guardar registro</button>
+    <div class="msg" id="msg-reg">✓ Registro guardado.</div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin-bottom:10px;">Últimos registros</div>
+    <div id="lista-registros"><div class="empty">Aún no hay registros. ¡Empezá hoy!</div></div>
+  </div>
+</div>
+
+<div id="tab-gastos" class="tab-content">
+  <div class="card">
+    <div class="section-title" style="margin-bottom:12px;">Agregar gasto</div>
+    <div class="grid2">
+      <div class="form-group"><label>Concepto</label>
+        <select id="gasto-tipo">
+          <option>Pollitos BB</option><option>Concentrado iniciador</option><option>Concentrado engorde</option>
+          <option>Vacuna</option><option>Vitaminas</option><option>Luz / agua</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Monto (Q)</label><input type="number" id="gasto-monto" min="0" placeholder="ej. 96"/></div>
+    </div>
+    <button class="btn" onclick="agregarGasto()">Agregar gasto</button>
+    <div class="msg" id="msg-gasto">✓ Gasto agregado.</div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin-bottom:10px;">Gastos del lote</div>
+    <div id="lista-gastos"><div class="empty">Sin gastos aún.</div></div>
+    <div class="total-bar" id="bloque-total">Total gastado: Q <span id="total-num">0</span></div>
+  </div>
+</div>
+
+<div id="tab-lotes" class="tab-content">
+  <div class="card">
+    <div class="section-title" style="margin-bottom:12px;">Cerrar lote y registrar venta</div>
+    <div class="grid2">
+      <div class="form-group"><label>Pollos vendidos</label><input type="number" id="venta-pollos" placeholder="ej. 11" oninput="calcIngreso()"/></div>
+      <div class="form-group"><label>Precio por libra (Q)</label><input type="number" id="venta-precio" value="15" oninput="calcIngreso()"/></div>
+      <div class="form-group"><label>Peso promedio (lb)</label><input type="number" id="venta-peso" value="5" oninput="calcIngreso()"/></div>
+      <div class="form-group"><label>Ingreso total</label><div style="font-size:22px;font-weight:700;color:#0F6E56;padding-top:6px;" id="ingreso-calc">Q 0</div></div>
+    </div>
+    <button class="btn" onclick="cerrarLote()">Cerrar lote</button>
+    <div class="msg" id="msg-lote"></div>
+  </div>
+  <div class="card">
+    <div class="section-title" style="margin-bottom:10px;">Historial de lotes</div>
+    <div id="historial-lotes"><div class="empty">Aún no hay lotes cerrados.</div></div>
+  </div>
+</div>
+
+<script>
+var st={semana:1,semanaMax:1,pollos:12,gastos:[],registros:[],lotes:[],totalGastos:0};
+var sems=[
+  {titulo:"Semana 1 — Pollito BB",tipo:"Iniciador",lb:4,color:"b-yellow",tareas:[
+    {icon:"🌡️",t:"Temperatura 32–35°C",d:"Encendé el foco 1 hora antes. Si los pollitos se apilan tienen frío; si se alejan tienen calor."},
+    {icon:"💧",t:"Agua con azúcar",d:"1 cucharada de azúcar por litro el primer día para quitarles el estrés del viaje."},
+    {icon:"🌾",t:"Alimento en bandeja plana",d:"Poné el iniciador en bandejas planas los primeros días para que lo encuentren fácil."},
+    {icon:"💉",t:"Conseguí la vacuna Newcastle",d:"Se aplica en el agua al día 7 u 8. Comprala esta semana en la agrovetrinaria."}
+  ]},
+  {titulo:"Semana 2 — Adaptación",tipo:"Iniciador",lb:8,color:"b-yellow",tareas:[
+    {icon:"🌡️",t:"Bajá temperatura a 30–32°C",d:"Subí el foco gradualmente. Pollos dispersos y activos = temperatura correcta."},
+    {icon:"💉",t:"Vacuna Newcastle día 7 u 8",d:"Retirá el agua 2 horas antes. Disolvé la vacuna en agua sin cloro y dásela."},
+    {icon:"👁️",t:"Observá el comportamiento",d:"Pollos activos = bien. Plumas erizadas o quietos = revisá. Separalos si están enfermos."}
+  ]},
+  {titulo:"Semana 3 — Crecimiento",tipo:"Iniciador",lb:13,color:"b-yellow",tareas:[
+    {icon:"🌡️",t:"Temperatura 27–28°C",d:"Seguí bajando el calor gradualmente cada día."},
+    {icon:"🌾",t:"Aumentá el alimento",d:"Los pollos comen más cada día. Comederos llenos siempre."},
+    {icon:"💉",t:"Revacuna Newcastle día 21",d:"Segunda dosis igual que la primera, en el agua de bebida."}
+  ]},
+  {titulo:"Semana 4 — Crecimiento fuerte",tipo:"Iniciador",lb:17,color:"b-yellow",tareas:[
+    {icon:"🌾",t:"Último tramo de iniciador",d:"Terminá el saco de iniciador. La próxima semana cambiás a engorde."},
+    {icon:"💨",t:"Ventilá más el galpón",d:"Los pollos ya son grandes y generan calor. Abrí ventilación."},
+    {icon:"🛒",t:"Comprá el concentrado de engorde",d:"Tené listo el saco de engorde antes de que empiece la semana 5."}
+  ]},
+  {titulo:"Semana 5 — Inicio de engorde",tipo:"Engorde",lb:21,color:"b-green",tareas:[
+    {icon:"🌾",t:"Cambio a concentrado de engorde",d:"Primer día: mitad iniciador mitad engorde. Segundo día en adelante: solo engorde."},
+    {icon:"💨",t:"Ventilación importante",d:"Los pollos grandes generan calor y gases. Ventilá bien para evitar enfermedades."},
+    {icon:"⚖️",t:"Pesá una muestra",d:"Agarrá 3 pollos al azar. Deberían andar entre 3–3.5 lb."}
+  ]},
+  {titulo:"Semana 6 — Engorde final",tipo:"Engorde",lb:25,color:"b-green",tareas:[
+    {icon:"🌾",t:"Solo concentrado de engorde",d:"Comederos llenos todo el tiempo. Esta semana engordan más rápido."},
+    {icon:"💨",t:"Máxima ventilación",d:"Evitá el calor excesivo. Ventilá mañana y tarde."},
+    {icon:"📱",t:"Avisá a tus clientes",d:"La próxima semana están listos. Coordiná las ventas por WhatsApp con anticipación."}
+  ]},
+  {titulo:"Semana 7 — Listos para vender",tipo:"Engorde",lb:25,color:"b-green",tareas:[
+    {icon:"⚠️",t:"Suspendé coccidiostato 5 días antes",d:"Si el alimento trae coccidiostato, retiralo mínimo 5 días antes de vender."},
+    {icon:"⚖️",t:"Confirmá el peso",d:"Los pollos deben andar entre 5–6 lb. Si están listos, vendé sin esperar más."},
+    {icon:"💰",t:"Vendé directo",d:"Avisá por WhatsApp. Venta directa = mayor ganancia para vos."},
+    {icon:"🏠",t:"Preparate para el siguiente lote",d:"Limpiá y desinfectá el galpón. Dejalo reposar 7–10 días antes de meter nuevos pollitos."}
+  ]}
+];
+
+function showTab(tab,btn){
+  document.querySelectorAll('.tab-content').forEach(function(t){t.classList.remove('active');});
+  document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function renderCalGrid(){
+  var g=document.getElementById('cal-grid');g.innerHTML='';
+  for(var i=1;i<=7;i++){
+    var d=document.createElement('div');
+    d.className='cal-day'+(i===st.semana?' active':(i<st.semanaMax?' done':''));
+    d.innerHTML='<div class="cd-num">S'+i+'</div><div class="cd-lbl">'+sems[i-1].tipo.substring(0,3)+'</div>';
+    (function(idx){d.onclick=function(){st.semana=idx;renderCalGrid();renderDetalle();document.getElementById('semana-actual').textContent=idx+' / 7';};})(i);
+    g.appendChild(d);
+  }
+}
+
+function renderDetalle(){
+  var s=sems[st.semana-1];
+  var lbDia=(s.lb/7).toFixed(1);
+  var html='<div class="detalle-card">';
+  html+='<div class="detalle-header"><span class="detalle-title">'+s.titulo+'</span><span class="badge '+s.color+'">'+s.tipo+'</span></div>';
+  html+='<div class="mini-stats">';
+  html+='<div class="mini-card"><div class="mini-label">Alimento esta semana</div><div class="mini-val">'+s.lb+' lb</div></div>';
+  html+='<div class="mini-card"><div class="mini-label">Por día ('+st.pollos+' pollos)</div><div class="mini-val">'+lbDia+' lb</div></div>';
+  html+='</div>';
+  s.tareas.forEach(function(t){
+    html+='<div class="task-item"><div class="task-icon">'+t.icon+'</div><div><div class="task-title">'+t.t+'</div><div class="task-desc">'+t.d+'</div></div></div>';
+  });
+  html+='</div>';
+  document.getElementById('cal-detalle').innerHTML=html;
+}
+
+function avanzarSemana(){
+  if(st.semanaMax<7) st.semanaMax++;
+  if(st.semana<7) st.semana++;
+  document.getElementById('semana-actual').textContent=st.semana+' / 7';
+  renderCalGrid();renderDetalle();
+}
+
+function showMsg(id,txt){
+  var el=document.getElementById(id);
+  if(txt) el.textContent=txt;
+  el.style.display='block';
+  setTimeout(function(){el.style.display='none';},2500);
+}
+
+function registrarDia(){
+  var mort=parseInt(document.getElementById('mort-input').value)||0;
+  var alim=parseFloat(document.getElementById('alim-input').value)||0;
+  var obs=document.getElementById('obs-input').value||'—';
+  st.pollos=Math.max(0,st.pollos-mort);
+  var f=new Date().toLocaleDateString('es-GT');
+  st.registros.unshift({fecha:f,mort:mort,alim:alim,obs:obs});
+  document.getElementById('pollos-vivos').textContent=st.pollos;
+  document.getElementById('mort-input').value=0;
+  document.getElementById('alim-input').value='';
+  document.getElementById('obs-input').value='';
+  showMsg('msg-reg','✓ Registro guardado.');
+  renderRegistros();renderDetalle();
+  guardarLocal();
+}
+
+function renderRegistros(){
+  var el=document.getElementById('lista-registros');
+  if(!st.registros.length){el.innerHTML='<div class="empty">Aún no hay registros.</div>';return;}
+  el.innerHTML=st.registros.slice(0,10).map(function(r){
+    return '<div class="row-item"><div style="color:#888;min-width:80px;font-size:12px;">'+r.fecha+'</div><div style="flex:1;padding:0 8px;font-size:12px;color:#555;">'+r.obs+'</div><div style="display:flex;gap:5px;">'+(r.mort>0?'<span class="badge b-red">-'+r.mort+'</span>':'')+(r.alim>0?'<span class="badge b-blue">'+r.alim+'lb</span>':'')+'</div></div>';
+  }).join('');
+}
+
+function agregarGasto(){
+  var tipo=document.getElementById('gasto-tipo').value;
+  var monto=parseFloat(document.getElementById('gasto-monto').value)||0;
+  if(monto<=0)return;
+  st.gastos.push({tipo:tipo,monto:monto});
+  st.totalGastos+=monto;
+  document.getElementById('gasto-monto').value='';
+  document.getElementById('gasto-total').textContent='Q '+Math.round(st.totalGastos);
+  showMsg('msg-gasto','✓ Gasto agregado.');
+  renderGastos();guardarLocal();
+}
+
+function eliminarGasto(i){
+  st.totalGastos-=st.gastos[i].monto;
+  st.gastos.splice(i,1);
+  document.getElementById('gasto-total').textContent='Q '+Math.round(st.totalGastos);
+  renderGastos();guardarLocal();
+}
+
+function renderGastos(){
+  var el=document.getElementById('lista-gastos');
+  if(!st.gastos.length){el.innerHTML='<div class="empty">Sin gastos aún.</div>';document.getElementById('bloque-total').style.display='none';return;}
+  el.innerHTML=st.gastos.map(function(g,i){
+    return '<div class="row-item"><span>'+g.tipo+'</span><div style="display:flex;align-items:center;gap:10px;"><span style="font-weight:600;">Q '+Math.round(g.monto)+'</span><button class="btn-sm btn-danger" onclick="eliminarGasto('+i+')">🗑</button></div></div>';
+  }).join('');
+  document.getElementById('total-num').textContent=Math.round(st.totalGastos);
+  document.getElementById('bloque-total').style.display='block';
+}
+
+function calcIngreso(){
+  var p=parseFloat(document.getElementById('venta-pollos').value)||0;
+  var pr=parseFloat(document.getElementById('venta-precio').value)||0;
+  var pe=parseFloat(document.getElementById('venta-peso').value)||0;
+  document.getElementById('ingreso-calc').textContent='Q '+Math.round(p*pr*pe);
+}
+
+function cerrarLote(){
+  var p=parseFloat(document.getElementById('venta-pollos').value)||0;
+  var pr=parseFloat(document.getElementById('venta-precio').value)||15;
+  var pe=parseFloat(document.getElementById('venta-peso').value)||5;
+  if(p<=0){showMsg('msg-lote','⚠️ Ingresá los pollos vendidos.');return;}
+  var ing=Math.round(p*pr*pe);
+  var gan=ing-Math.round(st.totalGastos);
+  var num=st.lotes.length+1;
+  st.lotes.unshift({num:num,pollos:p,ingreso:ing,gastos:Math.round(st.totalGastos),ganancia:gan});
+  st.gastos=[];st.totalGastos=0;st.semana=1;st.semanaMax=1;st.pollos=12;st.registros=[];
+  document.getElementById('pollos-vivos').textContent=12;
+  document.getElementById('gasto-total').textContent='Q 0';
+  document.getElementById('lotes-count').textContent=st.lotes.length;
+  document.getElementById('venta-pollos').value='';
+  document.getElementById('ingreso-calc').textContent='Q 0';
+  showMsg('msg-lote','✓ Lote '+num+' cerrado. Ganancia: Q '+gan);
+  renderGastos();renderRegistros();renderLotes();renderCalGrid();renderDetalle();
+  guardarLocal();
+}
+
+function renderLotes(){
+  var el=document.getElementById('historial-lotes');
+  if(!st.lotes.length){el.innerHTML='<div class="empty">Aún no hay lotes cerrados.</div>';return;}
+  var total=st.lotes.reduce(function(a,l){return a+l.ganancia;},0);
+  el.innerHTML=st.lotes.map(function(l){
+    var cls=l.ganancia>=0?'ganancia-pos':'ganancia-neg';
+    return '<div class="row-item"><div><div style="font-weight:600;">Lote '+l.num+'</div><div style="font-size:12px;color:#888;">'+l.pollos+' pollos · Ingreso Q '+l.ingreso+' · Gasto Q '+l.gastos+'</div></div><div class="lote-ganancia '+cls+'">Q '+l.ganancia+'</div></div>';
+  }).join('')+'<div class="total-acum">Ganancia total acumulada: Q '+total+'</div>';
+}
+
+function confirmarBorrar(){
+  document.getElementById('modal-borrar').style.display='flex';
+}
+function cancelarBorrar(){
+  document.getElementById('modal-borrar').style.display='none';
+}
+function borrarTodo(){
+  st={semana:1,semanaMax:1,pollos:12,gastos:[],registros:[],lotes:[],totalGastos:0};
+  document.getElementById('pollos-vivos').textContent=12;
+  document.getElementById('semana-actual').textContent='1 / 7';
+  document.getElementById('gasto-total').textContent='Q 0';
+  document.getElementById('lotes-count').textContent=0;
+  document.getElementById('modal-borrar').style.display='none';
+  try{ localStorage.removeItem('granja_bc'); }catch(e){}
+  renderCalGrid();renderDetalle();renderRegistros();renderGastos();renderLotes();
+}
+
+function guardarLocal(){
+  try{ localStorage.setItem('granja_bc',JSON.stringify(st)); }catch(e){}
+}
+
+function cargarLocal(){
+  try{
+    var d=localStorage.getItem('granja_bc');
+    if(d){ st=JSON.parse(d); }
+  }catch(e){}
+}
+
+cargarLocal();
+renderCalGrid();
+renderDetalle();
+renderRegistros();
+renderGastos();
+renderLotes();
+document.getElementById('pollos-vivos').textContent=st.pollos;
+document.getElementById('semana-actual').textContent=st.semana+' / 7';
+document.getElementById('gasto-total').textContent='Q '+Math.round(st.totalGastos);
+document.getElementById('lotes-count').textContent=st.lotes.length;
+</script>
+</body>
+</html>
